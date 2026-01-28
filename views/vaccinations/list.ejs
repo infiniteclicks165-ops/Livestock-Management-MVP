@@ -1,0 +1,129 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0">Vaccination Records</h2>
+            <p class="text-muted">Total: <%= totalRecords %> records</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group">
+                <a href="/vaccinations/overdue" class="btn btn-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Overdue
+                </a>
+                <a href="/vaccinations/upcoming" class="btn btn-warning">
+                    <i class="bi bi-calendar-check"></i> Upcoming
+                </a>
+                <a href="/vaccinations/add" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add Vaccination
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cattle</th>
+                            <th>Vaccine</th>
+                            <th>Dosage</th>
+                            <th>Injection Date</th>
+                            <th>Next Due</th>
+                            <th>Administered By</th>
+                            <th>Recorded By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (vaccinations.length === 0) { %>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    No vaccination records found. <a href="/vaccinations/add">Add first record</a>
+                                </td>
+                            </tr>
+                        <% } else { %>
+                            <% vaccinations.forEach(vacc => { %>
+                                <tr>
+                                    <td>
+                                        <a href="/cows/<%= vacc.cow._id %>" class="text-decoration-none">
+                                            <%= vacc.cow.earTag %>
+                                        </a>
+                                    </td>
+                                    <td><strong><%= vacc.vaccineName %></strong></td>
+                                    <td><%= vacc.dosage || '-' %></td>
+                                    <td><%= vacc.injectionDate.toLocaleDateString() %></td>
+                                    <td>
+                                        <% if (vacc.nextDueDate) { %>
+                                            <%
+                                            const today = new Date();
+                                            const dueDate = new Date(vacc.nextDueDate);
+                                            const isOverdue = dueDate < today;
+                                            const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                                            %>
+                                            <span class="badge <%= isOverdue ? 'bg-danger' : (daysUntilDue <= 7 ? 'bg-warning text-dark' : 'bg-info') %>">
+                                                <%= vacc.nextDueDate.toLocaleDateString() %>
+                                                <% if (isOverdue) { %>
+                                                    (OVERDUE)
+                                                <% } else if (daysUntilDue <= 7) { %>
+                                                    (<%= daysUntilDue %> days)
+                                                <% } %>
+                                            </span>
+                                        <% } else { %>
+                                            -
+                                        <% } %>
+                                    </td>
+                                    <td><%= vacc.administeredBy || '-' %></td>
+                                    <td><%= vacc.recordedBy.name %></td>
+                                    <td class="table-actions">
+                                        <a href="/vaccinations/<%= vacc._id %>/edit" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

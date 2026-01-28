@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> Edit Cattle: <%= cow.earTag %></h4>
+                </div>
+                <div class="card-body">
+                    <% if (error && error.length > 0) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <% } %>
+
+                    <form action="/cows/<%= cow._id %>/edit" method="POST">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Ear tag cannot be changed to maintain data integrity.
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ear Tag</label>
+                            <input type="text" class="form-control" value="<%= cow.earTag %>" disabled>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="<%= cow.name || '' %>">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">Gender *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="male" <%= cow.gender === 'male' ? 'selected' : '' %>>Male</option>
+                                    <option value="female" <%= cow.gender === 'female' ? 'selected' : '' %>>Female</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="breed" class="form-label">Breed *</label>
+                                <input type="text" class="form-control" id="breed" name="breed" value="<%= cow.breed %>" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="dateOfBirth" class="form-label">Date of Birth *</label>
+                                <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" 
+                                       value="<%= cow.dateOfBirth.toISOString().split('T')[0] %>" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="motherCow" class="form-label">Mother Cow</label>
+                                <select class="form-select" id="motherCow" name="motherCow">
+                                    <option value="">Not born on farm</option>
+                                    <% femaleCows.forEach(fc => { %>
+                                        <option value="<%= fc._id %>" 
+                                                <%= cow.motherCow && cow.motherCow.toString() === fc._id.toString() ? 'selected' : '' %>>
+                                            <%= fc.earTag %><% if (fc.name) { %> - <%= fc.name %><% } %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Status *</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="active" <%= cow.status === 'active' ? 'selected' : '' %>>Active</option>
+                                    <option value="sold" <%= cow.status === 'sold' ? 'selected' : '' %>>Sold</option>
+                                    <option value="deceased" <%= cow.status === 'deceased' ? 'selected' : '' %>>Deceased</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"><%= cow.notes || '' %></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/cows/<%= cow._id %>" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

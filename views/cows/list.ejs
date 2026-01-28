@@ -1,0 +1,166 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0">Cattle List</h2>
+            <p class="text-muted">Total: <%= totalCows %> cattle</p>
+        </div>
+        <div class="col-auto">
+            <a href="/cows/add" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Add New Cattle
+            </a>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <!-- Filter form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="/cows" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" <%= filter.status === 'active' ? 'selected' : '' %>>Active</option>
+                        <option value="sold" <%= filter.status === 'sold' ? 'selected' : '' %>>Sold</option>
+                        <option value="deceased" <%= filter.status === 'deceased' ? 'selected' : '' %>>Deceased</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="">All Genders</option>
+                        <option value="male" <%= filter.gender === 'male' ? 'selected' : '' %>>Male</option>
+                        <option value="female" <%= filter.gender === 'female' ? 'selected' : '' %>>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a href="/cows" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ear Tag</th>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Breed</th>
+                            <th>Age</th>
+                            <th>Status</th>
+                            <th>Mother</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (cows.length === 0) { %>
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    No cattle found. <a href="/cows/add">Add your first cattle</a>
+                                </td>
+                            </tr>
+                        <% } else { %>
+                            <% cows.forEach(cow => { %>
+                                <tr>
+                                    <td>
+                                        <a href="/cows/<%= cow._id %>" class="fw-bold text-decoration-none">
+                                            <%= cow.earTag %>
+                                        </a>
+                                    </td>
+                                    <td><%= cow.name || '-' %></td>
+                                    <td>
+                                        <% if (cow.gender === 'male') { %>
+                                            <i class="bi bi-gender-male text-primary"></i> Male
+                                        <% } else { %>
+                                            <i class="bi bi-gender-female text-danger"></i> Female
+                                        <% } %>
+                                    </td>
+                                    <td><%= cow.breed %></td>
+                                    <td>
+                                        <% if (cow.ageInMonths < 12) { %>
+                                            <%= cow.ageInMonths %> months
+                                        <% } else { %>
+                                            <%= cow.age %> years
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (cow.status === 'active') { %>
+                                            <span class="badge bg-success">Active</span>
+                                        <% } else if (cow.status === 'sold') { %>
+                                            <span class="badge bg-info">Sold</span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary">Deceased</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (cow.motherCow) { %>
+                                            <a href="/cows/<%= cow.motherCow._id %>"><%= cow.motherCow.earTag %></a>
+                                        <% } else { %>
+                                            -
+                                        <% } %>
+                                    </td>
+                                    <td class="table-actions">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="/cows/<%= cow._id %>" class="btn btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="/cows/<%= cow._id %>/edit" class="btn btn-outline-secondary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

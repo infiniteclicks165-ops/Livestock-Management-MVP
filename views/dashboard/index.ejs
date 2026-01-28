@@ -1,0 +1,304 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0">Dashboard</h2>
+            <p class="text-muted">Welcome back, <%= userName %>!</p>
+        </div>
+        <div class="col-auto">
+            <a href="/dashboard/reports" class="btn btn-outline-primary">
+                <i class="bi bi-bar-chart"></i> View Reports
+            </a>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">Total Cattle</h6>
+                            <h2 class="mb-0"><%= stats.totalCows %></h2>
+                        </div>
+                        <i class="bi bi-grid-3x3 fs-1 opacity-50"></i>
+                    </div>
+                    <small class="mt-2 d-block"><%= stats.activeCows %> active</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">Active Cattle</h6>
+                            <h2 class="mb-0"><%= stats.activeCows %></h2>
+                        </div>
+                        <i class="bi bi-check-circle fs-1 opacity-50"></i>
+                    </div>
+                    <small class="mt-2 d-block"><%= stats.maleCows %> male, <%= stats.femaleCows %> female</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">Pregnant Cows</h6>
+                            <h2 class="mb-0"><%= stats.pregnantCount %></h2>
+                        </div>
+                        <i class="bi bi-heart-pulse fs-1 opacity-50"></i>
+                    </div>
+                    <small class="mt-2 d-block">
+                        <a href="/reproduction/pregnant" class="text-dark">View details</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-1">Births This Year</h6>
+                            <h2 class="mb-0"><%= stats.birthsThisYear %></h2>
+                        </div>
+                        <i class="bi bi-heart-fill fs-1 opacity-50"></i>
+                    </div>
+                    <small class="mt-2 d-block"><%= new Date().getFullYear() %></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Section -->
+    <% if (stats.overdueVaccinationsCount > 0 || stats.upcomingVaccinationsCount > 0) { %>
+        <div class="row mb-4">
+            <% if (stats.overdueVaccinationsCount > 0) { %>
+                <div class="col-md-6 mb-3">
+                    <div class="alert alert-danger d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-exclamation-triangle fs-4"></i>
+                            <strong class="ms-2"><%= stats.overdueVaccinationsCount %></strong> cattle with overdue vaccinations
+                        </div>
+                        <a href="/vaccinations/overdue" class="btn btn-sm btn-danger">
+                            View <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (stats.upcomingVaccinationsCount > 0) { %>
+                <div class="col-md-6 mb-3">
+                    <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-calendar-check fs-4"></i>
+                            <strong class="ms-2"><%= stats.upcomingVaccinationsCount %></strong> vaccinations due in next 7 days
+                        </div>
+                        <a href="/vaccinations/upcoming" class="btn btn-sm btn-warning">
+                            View <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#recentCows" type="button">
+                                Recent Cattle
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#recentHealth" type="button">
+                                Health Records
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#recentVaccinations" type="button">
+                                Vaccinations
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Recent Cows Tab -->
+                        <div class="tab-pane fade show active" id="recentCows">
+                            <% if (recentCows.length === 0) { %>
+                                <p class="text-muted text-center py-3">No cattle added yet</p>
+                            <% } else { %>
+                                <div class="list-group list-group-flush">
+                                    <% recentCows.forEach(cow => { %>
+                                        <a href="/cows/<%= cow._id %>" class="list-group-item list-group-item-action">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1"><%= cow.earTag %> <% if (cow.name) { %>- <%= cow.name %><% } %></h6>
+                                                    <small class="text-muted">
+                                                        <%= cow.breed %> · <%= cow.gender.charAt(0).toUpperCase() + cow.gender.slice(1) %>
+                                                        · <%= cow.ageInMonths < 12 ? cow.ageInMonths + ' months' : cow.age + ' years' %>
+                                                    </small>
+                                                </div>
+                                                <small class="text-muted"><%= cow.createdAt.toLocaleDateString() %></small>
+                                            </div>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Recent Health Tab -->
+                        <div class="tab-pane fade" id="recentHealth">
+                            <% if (recentHealth.length === 0) { %>
+                                <p class="text-muted text-center py-3">No health records yet</p>
+                            <% } else { %>
+                                <div class="list-group list-group-flush">
+                                    <% recentHealth.forEach(record => { %>
+                                        <a href="/cows/<%= record.cow._id %>" class="list-group-item list-group-item-action">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1"><%= record.cow.earTag %></h6>
+                                                    <p class="mb-1"><%= record.symptoms.substring(0, 80) %><%= record.symptoms.length > 80 ? '...' : '' %></p>
+                                                    <small class="text-muted"><%= record.observationDate.toLocaleDateString() %></small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Recent Vaccinations Tab -->
+                        <div class="tab-pane fade" id="recentVaccinations">
+                            <% if (recentVaccinations.length === 0) { %>
+                                <p class="text-muted text-center py-3">No vaccinations yet</p>
+                            <% } else { %>
+                                <div class="list-group list-group-flush">
+                                    <% recentVaccinations.forEach(vacc => { %>
+                                        <a href="/cows/<%= vacc.cow._id %>" class="list-group-item list-group-item-action">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1"><%= vacc.cow.earTag %></h6>
+                                                    <p class="mb-1"><strong><%= vacc.vaccineName %></strong></p>
+                                                    <small class="text-muted"><%= vacc.injectionDate.toLocaleDateString() %></small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Due Dates -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Upcoming Due Dates</h5>
+                </div>
+                <div class="card-body">
+                    <% if (upcomingDueDates.length === 0) { %>
+                        <p class="text-muted text-center py-3">No upcoming births</p>
+                    <% } else { %>
+                        <div class="list-group list-group-flush">
+                            <% upcomingDueDates.forEach(event => { %>
+                                <%
+                                const today = new Date();
+                                const dueDate = new Date(event.expectedDueDate);
+                                const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                                %>
+                                <a href="/cows/<%= event.motherCow._id %>" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1"><%= event.motherCow.earTag %></h6>
+                                            <small class="text-muted"><%= event.expectedDueDate.toLocaleDateString() %></small>
+                                        </div>
+                                        <span class="badge <%= daysUntil <= 7 ? 'bg-danger' : 'bg-warning text-dark' %>">
+                                            <%= daysUntil %> <%= daysUntil === 1 ? 'day' : 'days' %>
+                                        </span>
+                                    </div>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                    <% if (upcomingDueDates.length > 0) { %>
+                        <div class="mt-3 text-center">
+                            <a href="/reproduction/pregnant" class="btn btn-sm btn-warning">
+                                View All Pregnant Cattle
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="/cows/add" class="btn btn-outline-success w-100">
+                                <i class="bi bi-plus-circle"></i> Add Cattle
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/health/add" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-heart-pulse"></i> Record Health
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/vaccinations/add" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-shield-check"></i> Record Vaccination
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/reproduction/add" class="btn btn-outline-info w-100">
+                                <i class="bi bi-hearts"></i> Record Breeding
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

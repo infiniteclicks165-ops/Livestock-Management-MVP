@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0 text-warning">
+                <i class="bi bi-heart-pulse"></i> Pregnant Cattle
+            </h2>
+            <p class="text-muted">Currently pregnant cows awaiting birth</p>
+        </div>
+        <div class="col-auto">
+            <a href="/reproduction" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Reproduction
+            </a>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <% if (pregnantEvents.length === 0) { %>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle fs-1 d-block mb-2"></i>
+                    <h5>No pregnant cattle</h5>
+                    <p class="mb-0">No cows are currently recorded as pregnant.</p>
+                </div>
+            </div>
+        <% } else { %>
+            <% pregnantEvents.forEach(event => { %>
+                <div class="col-md-6 mb-3">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <a href="/cows/<%= event.motherCow._id %>" class="text-dark text-decoration-none">
+                                        <%= event.motherCow.earTag %>
+                                        <% if (event.motherCow.name) { %> - <%= event.motherCow.name %><% } %>
+                                    </a>
+                                </h5>
+                                <% if (event.expectedDueDate) { %>
+                                    <%
+                                    const today = new Date();
+                                    const dueDate = new Date(event.expectedDueDate);
+                                    const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                                    %>
+                                    <span class="badge bg-dark">
+                                        <% if (daysUntil > 0) { %>
+                                            <%= daysUntil %> days
+                                        <% } else if (daysUntil === 0) { %>
+                                            Due today!
+                                        <% } else { %>
+                                            <%= Math.abs(daysUntil) %> days overdue
+                                        <% } %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <% if (event.matingDate) { %>
+                                <p class="mb-2"><strong>Mating Date:</strong> <%= event.matingDate.toLocaleDateString() %></p>
+                            <% } %>
+                            <p class="mb-2">
+                                <strong>Pregnancy Confirmed:</strong> <%= event.pregnancyConfirmedDate.toLocaleDateString() %>
+                            </p>
+                            <% if (event.expectedDueDate) { %>
+                                <p class="mb-2">
+                                    <strong>Expected Due Date:</strong> <%= event.expectedDueDate.toLocaleDateString() %>
+                                </p>
+                            <% } %>
+                            <% if (event.method) { %>
+                                <p class="mb-2"><strong>Method:</strong> <%= event.method.charAt(0).toUpperCase() + event.method.slice(1) %></p>
+                            <% } %>
+                            <% if (event.bullId) { %>
+                                <p class="mb-2"><strong>Bull ID:</strong> <%= event.bullId %></p>
+                            <% } %>
+                            <% if (event.notes) { %>
+                                <p class="mb-2"><strong>Notes:</strong> <%= event.notes %></p>
+                            <% } %>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Recorded by <%= event.recordedBy.name %></small>
+                                <a href="/reproduction/<%= event._id %>/record-birth" class="btn btn-sm btn-success">
+                                    <i class="bi bi-heart-fill"></i> Record Birth
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

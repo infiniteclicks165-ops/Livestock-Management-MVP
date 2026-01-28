@@ -1,0 +1,51 @@
+{
+  "name": "livestock-management-system",
+  "version": "1.0.0",
+  "description": "Production-ready cattle management web application",
+  "keywords": [
+    "livestock",
+    "cattle",
+    "farm",
+    "management"
+  ],
+  "license": "MIT",
+  "author": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "3.0.3",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "0.562.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.0.3",
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tailwind-merge": "3.4.0",
+    "tailwindcss-animate": "1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "25.0.3",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "nodemon": "^3.0.2",
+    "postcss": "8.5.6",
+    "tailwindcss": "^4.1.9",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

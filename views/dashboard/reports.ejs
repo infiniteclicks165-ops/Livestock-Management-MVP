@@ -1,0 +1,233 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0">Reports & Analytics</h2>
+            <p class="text-muted">Year <%= currentYear %> overview</p>
+        </div>
+        <div class="col-auto">
+            <a href="/dashboard" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Cattle Overview -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Cattle by Breed</h5>
+                </div>
+                <div class="card-body">
+                    <% if (cattleByBreed.length === 0) { %>
+                        <p class="text-muted text-center py-3">No data available</p>
+                    <% } else { %>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Breed</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%
+                                const totalBreeds = cattleByBreed.reduce((sum, b) => sum + b.count, 0);
+                                %>
+                                <% cattleByBreed.forEach(breed => { %>
+                                    <tr>
+                                        <td><%= breed._id %></td>
+                                        <td class="text-end"><%= breed.count %></td>
+                                        <td class="text-end"><%= ((breed.count / totalBreeds) * 100).toFixed(1) %>%</td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-bold">
+                                    <td>Total</td>
+                                    <td class="text-end"><%= totalBreeds %></td>
+                                    <td class="text-end">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Age Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <%
+                    const totalAgeCount = ageDistribution.calf + ageDistribution.young + ageDistribution.mature + ageDistribution.senior;
+                    %>
+                    <% if (totalAgeCount === 0) { %>
+                        <p class="text-muted text-center py-3">No data available</p>
+                    <% } else { %>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Age Group</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Calf (0-1 year)</td>
+                                    <td class="text-end"><%= ageDistribution.calf %></td>
+                                    <td class="text-end"><%= ((ageDistribution.calf / totalAgeCount) * 100).toFixed(1) %>%</td>
+                                </tr>
+                                <tr>
+                                    <td>Young (1-3 years)</td>
+                                    <td class="text-end"><%= ageDistribution.young %></td>
+                                    <td class="text-end"><%= ((ageDistribution.young / totalAgeCount) * 100).toFixed(1) %>%</td>
+                                </tr>
+                                <tr>
+                                    <td>Mature (3-8 years)</td>
+                                    <td class="text-end"><%= ageDistribution.mature %></td>
+                                    <td class="text-end"><%= ((ageDistribution.mature / totalAgeCount) * 100).toFixed(1) %>%</td>
+                                </tr>
+                                <tr>
+                                    <td>Senior (8+ years)</td>
+                                    <td class="text-end"><%= ageDistribution.senior %></td>
+                                    <td class="text-end"><%= ((ageDistribution.senior / totalAgeCount) * 100).toFixed(1) %>%</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-bold">
+                                    <td>Total</td>
+                                    <td class="text-end"><%= totalAgeCount %></td>
+                                    <td class="text-end">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Activity Charts -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Births by Month</h5>
+                </div>
+                <div class="card-body">
+                    <%
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const birthsData = {};
+                    birthsByMonth.forEach(b => { birthsData[b._id] = b; });
+                    %>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-end">Events</th>
+                                <th class="text-end">Calves</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 1; i <= 12; i++) { %>
+                                <tr>
+                                    <td><%= monthNames[i-1] %></td>
+                                    <td class="text-end"><%= birthsData[i] ? birthsData[i].count : 0 %></td>
+                                    <td class="text-end"><%= birthsData[i] ? birthsData[i].totalCalves : 0 %></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td>Total</td>
+                                <td class="text-end"><%= birthsByMonth.reduce((sum, b) => sum + b.count, 0) %></td>
+                                <td class="text-end"><%= birthsByMonth.reduce((sum, b) => sum + b.totalCalves, 0) %></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Health Records</h5>
+                </div>
+                <div class="card-body">
+                    <%
+                    const healthData = {};
+                    healthByMonth.forEach(h => { healthData[h._id] = h.count; });
+                    %>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-end">Records</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 1; i <= 12; i++) { %>
+                                <tr>
+                                    <td><%= monthNames[i-1] %></td>
+                                    <td class="text-end"><%= healthData[i] || 0 %></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td>Total</td>
+                                <td class="text-end"><%= healthByMonth.reduce((sum, h) => sum + h.count, 0) %></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> Vaccinations</h5>
+                </div>
+                <div class="card-body">
+                    <%
+                    const vaccData = {};
+                    vaccinationsByMonth.forEach(v => { vaccData[v._id] = v.count; });
+                    %>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-end">Records</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 1; i <= 12; i++) { %>
+                                <tr>
+                                    <td><%= monthNames[i-1] %></td>
+                                    <td class="text-end"><%= vaccData[i] || 0 %></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td>Total</td>
+                                <td class="text-end"><%= vaccinationsByMonth.reduce((sum, v) => sum + v.count, 0) %></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,95 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> Edit Reproduction Event</h4>
+                </div>
+                <div class="card-body">
+                    <% if (error && error.length > 0) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <% } %>
+
+                    <div class="alert alert-info mb-3">
+                        <strong>Mother:</strong> <%= reproductionEvent.motherCow.earTag %>
+                        <% if (reproductionEvent.motherCow.name) { %> - <%= reproductionEvent.motherCow.name %><% } %>
+                    </div>
+
+                    <form action="/reproduction/<%= reproductionEvent._id %>/edit" method="POST">
+                        <h5 class="mt-3 mb-3">Mating Information</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="matingDate" class="form-label">Mating Date</label>
+                                <input type="date" class="form-control" id="matingDate" name="matingDate"
+                                       value="<%= reproductionEvent.matingDate ? reproductionEvent.matingDate.toISOString().split('T')[0] : '' %>">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="method" class="form-label">Method</label>
+                                <select class="form-select" id="method" name="method">
+                                    <option value="natural" <%= reproductionEvent.method === 'natural' ? 'selected' : '' %>>Natural</option>
+                                    <option value="artificial" <%= reproductionEvent.method === 'artificial' ? 'selected' : '' %>>Artificial Insemination</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bullId" class="form-label">Bull ID</label>
+                            <input type="text" class="form-control" id="bullId" name="bullId"
+                                   value="<%= reproductionEvent.bullId || '' %>">
+                        </div>
+
+                        <h5 class="mt-4 mb-3">Pregnancy Information</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="pregnancyConfirmedDate" class="form-label">Pregnancy Confirmed Date</label>
+                                <input type="date" class="form-control" id="pregnancyConfirmedDate" name="pregnancyConfirmedDate"
+                                       value="<%= reproductionEvent.pregnancyConfirmedDate ? reproductionEvent.pregnancyConfirmedDate.toISOString().split('T')[0] : '' %>">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="expectedDueDate" class="form-label">Expected Due Date</label>
+                                <input type="date" class="form-control" id="expectedDueDate" name="expectedDueDate"
+                                       value="<%= reproductionEvent.expectedDueDate ? reproductionEvent.expectedDueDate.toISOString().split('T')[0] : '' %>">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="complications" name="complications"
+                                       <%= reproductionEvent.complications ? 'checked' : '' %>>
+                                <label class="form-check-label" for="complications">
+                                    Complications noted
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"><%= reproductionEvent.notes || '' %></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/cows/<%= reproductionEvent.motherCow._id %>" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

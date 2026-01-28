@@ -1,0 +1,132 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0">Reproduction Records</h2>
+            <p class="text-muted">Total: <%= totalRecords %> records</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group">
+                <a href="/reproduction/pregnant" class="btn btn-warning">
+                    <i class="bi bi-heart-pulse"></i> Pregnant Cattle
+                </a>
+                <a href="/reproduction/add" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Add Event
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Mother Cow</th>
+                            <th>Mating Date</th>
+                            <th>Method</th>
+                            <th>Pregnancy</th>
+                            <th>Birth Date</th>
+                            <th>Calves</th>
+                            <th>Status</th>
+                            <th>Recorded By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (reproductionEvents.length === 0) { %>
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">
+                                    No reproduction records found. <a href="/reproduction/add">Add first record</a>
+                                </td>
+                            </tr>
+                        <% } else { %>
+                            <% reproductionEvents.forEach(event => { %>
+                                <tr>
+                                    <td>
+                                        <a href="/cows/<%= event.motherCow._id %>" class="text-decoration-none">
+                                            <%= event.motherCow.earTag %>
+                                        </a>
+                                    </td>
+                                    <td><%= event.matingDate ? event.matingDate.toLocaleDateString() : '-' %></td>
+                                    <td><%= event.method ? event.method.charAt(0).toUpperCase() + event.method.slice(1) : '-' %></td>
+                                    <td>
+                                        <%= event.pregnancyConfirmedDate ? event.pregnancyConfirmedDate.toLocaleDateString() : '-' %>
+                                    </td>
+                                    <td>
+                                        <%= event.birthDate ? event.birthDate.toLocaleDateString() : '-' %>
+                                    </td>
+                                    <td><%= event.numberOfCalves || '-' %></td>
+                                    <td>
+                                        <% if (event.birthDate) { %>
+                                            <span class="badge bg-success">Birth Recorded</span>
+                                        <% } else if (event.pregnancyConfirmedDate) { %>
+                                            <span class="badge bg-warning text-dark">Pregnant</span>
+                                        <% } else { %>
+                                            <span class="badge bg-info">Mating Recorded</span>
+                                        <% } %>
+                                    </td>
+                                    <td><%= event.recordedBy.name %></td>
+                                    <td class="table-actions">
+                                        <div class="btn-group btn-group-sm">
+                                            <% if (!event.birthDate) { %>
+                                                <a href="/reproduction/<%= event._id %>/record-birth" class="btn btn-outline-success" title="Record Birth">
+                                                    <i class="bi bi-heart-fill"></i>
+                                                </a>
+                                                <a href="/reproduction/<%= event._id %>/edit" class="btn btn-outline-secondary" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            <% } else { %>
+                                                <button class="btn btn-outline-secondary" disabled title="Complete">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

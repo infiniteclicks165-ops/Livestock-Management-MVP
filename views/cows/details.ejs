@@ -1,0 +1,369 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid mt-4">
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <!-- Cattle Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-1">
+                <span class="badge bg-success"><%= cow.earTag %></span>
+                <% if (cow.name) { %>
+                    <%= cow.name %>
+                <% } %>
+            </h2>
+            <p class="text-muted mb-0">
+                <% if (cow.ageInMonths < 12) { %>
+                    <%= cow.ageInMonths %> months old
+                <% } else { %>
+                    <%= cow.age %> years old
+                <% } %>
+                · <%= cow.breed %>
+                · <%= cow.gender.charAt(0).toUpperCase() + cow.gender.slice(1) %>
+            </p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group">
+                <a href="/cows/<%= cow._id %>/edit" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="/cows" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cattle Information Card -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Ear Tag:</dt>
+                        <dd class="col-sm-7"><%= cow.earTag %></dd>
+
+                        <dt class="col-sm-5">Name:</dt>
+                        <dd class="col-sm-7"><%= cow.name || '-' %></dd>
+
+                        <dt class="col-sm-5">Gender:</dt>
+                        <dd class="col-sm-7"><%= cow.gender.charAt(0).toUpperCase() + cow.gender.slice(1) %></dd>
+
+                        <dt class="col-sm-5">Breed:</dt>
+                        <dd class="col-sm-7"><%= cow.breed %></dd>
+
+                        <dt class="col-sm-5">Date of Birth:</dt>
+                        <dd class="col-sm-7"><%= cow.dateOfBirth.toLocaleDateString() %></dd>
+
+                        <dt class="col-sm-5">Age:</dt>
+                        <dd class="col-sm-7">
+                            <% if (cow.ageInMonths < 12) { %>
+                                <%= cow.ageInMonths %> months
+                            <% } else { %>
+                                <%= cow.age %> years (<%= cow.ageInMonths %> months)
+                            <% } %>
+                        </dd>
+
+                        <dt class="col-sm-5">Status:</dt>
+                        <dd class="col-sm-7">
+                            <% if (cow.status === 'active') { %>
+                                <span class="badge bg-success">Active</span>
+                            <% } else if (cow.status === 'sold') { %>
+                                <span class="badge bg-info">Sold</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary">Deceased</span>
+                            <% } %>
+                        </dd>
+
+                        <dt class="col-sm-5">Mother:</dt>
+                        <dd class="col-sm-7">
+                            <% if (cow.motherCow) { %>
+                                <a href="/cows/<%= cow.motherCow._id %>"><%= cow.motherCow.earTag %></a>
+                            <% } else { %>
+                                Not born on farm
+                            <% } %>
+                        </dd>
+                    </dl>
+
+                    <% if (cow.notes) { %>
+                        <hr>
+                        <strong>Notes:</strong>
+                        <p class="mb-0"><%= cow.notes %></p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-8 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="/health/add?cowId=<%= cow._id %>" class="btn btn-outline-danger w-100 p-3">
+                                <i class="bi bi-heart-pulse fs-3 d-block mb-2"></i>
+                                Record Health Event
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/vaccinations/add?cowId=<%= cow._id %>" class="btn btn-outline-primary w-100 p-3">
+                                <i class="bi bi-shield-check fs-3 d-block mb-2"></i>
+                                Record Vaccination
+                            </a>
+                        </div>
+                        <% if (cow.gender === 'female') { %>
+                            <div class="col-md-6">
+                                <a href="/reproduction/add?cowId=<%= cow._id %>" class="btn btn-outline-success w-100 p-3">
+                                    <i class="bi bi-hearts fs-3 d-block mb-2"></i>
+                                    Record Breeding/Birth
+                                </a>
+                            </div>
+                        <% } %>
+                        <div class="col-md-6">
+                            <a href="/cows/<%= cow._id %>/edit" class="btn btn-outline-warning w-100 p-3">
+                                <i class="bi bi-pencil fs-3 d-block mb-2"></i>
+                                Edit Information
+                            </a>
+                        </div>
+                    </div>
+
+                    <% if (offspring && offspring.length > 0) { %>
+                        <hr class="my-4">
+                        <h6 class="fw-bold"><i class="bi bi-diagram-3"></i> Offspring (<%= offspring.length %>)</h6>
+                        <div class="list-group">
+                            <% offspring.forEach(calf => { %>
+                                <a href="/cows/<%= calf._id %>" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><%= calf.earTag %></strong>
+                                            <% if (calf.name) { %> - <%= calf.name %><% } %>
+                                            <br>
+                                            <small class="text-muted">
+                                                Born: <%= calf.dateOfBirth.toLocaleDateString() %>
+                                                (<%=calf.ageInMonths %> months)
+                                            </small>
+                                        </div>
+                                        <span class="badge <%= calf.gender === 'male' ? 'bg-primary' : 'bg-danger' %>">
+                                            <%= calf.gender %>
+                                        </span>
+                                    </div>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs for History -->
+    <ul class="nav nav-tabs" id="historyTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="health-tab" data-bs-toggle="tab" data-bs-target="#health" type="button">
+                <i class="bi bi-heart-pulse"></i> Health Records (<%= healthRecords.length %>)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="vaccination-tab" data-bs-toggle="tab" data-bs-target="#vaccination" type="button">
+                <i class="bi bi-shield-check"></i> Vaccinations (<%= vaccinations.length %>)
+            </button>
+        </li>
+        <% if (cow.gender === 'female') { %>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reproduction-tab" data-bs-toggle="tab" data-bs-target="#reproduction" type="button">
+                    <i class="bi bi-hearts"></i> Reproduction (<%= reproductionEvents.length %>)
+                </button>
+            </li>
+        <% } %>
+    </ul>
+
+    <div class="tab-content border border-top-0 p-4 bg-white" id="historyTabsContent">
+        <!-- Health Records Tab -->
+        <div class="tab-pane fade show active" id="health" role="tabpanel">
+            <% if (healthRecords.length === 0) { %>
+                <p class="text-muted text-center py-4">No health records yet.</p>
+            <% } else { %>
+                <div class="timeline">
+                    <% healthRecords.forEach(record => { %>
+                        <div class="timeline-item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0"><%= record.observationDate.toLocaleDateString() %></h6>
+                                        <small class="text-muted">Recorded by <%= record.recordedBy.name %></small>
+                                    </div>
+                                    <p class="mb-1"><strong>Symptoms:</strong> <%= record.symptoms %></p>
+                                    <% if (record.diagnosis) { %>
+                                        <p class="mb-1"><strong>Diagnosis:</strong> <%= record.diagnosis %></p>
+                                    <% } %>
+                                    <% if (record.treatment) { %>
+                                        <p class="mb-1"><strong>Treatment:</strong> <%= record.treatment %></p>
+                                    <% } %>
+                                    <% if (record.vetName) { %>
+                                        <p class="mb-1"><strong>Vet:</strong> <%= record.vetName %></p>
+                                    <% } %>
+                                    <% if (record.followUpDate) { %>
+                                        <p class="mb-0">
+                                            <span class="badge bg-warning text-dark">
+                                                Follow-up: <%= record.followUpDate.toLocaleDateString() %>
+                                            </span>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Vaccinations Tab -->
+        <div class="tab-pane fade" id="vaccination" role="tabpanel">
+            <% if (vaccinations.length === 0) { %>
+                <p class="text-muted text-center py-4">No vaccination records yet.</p>
+            <% } else { %>
+                <div class="timeline">
+                    <% vaccinations.forEach(vacc => { %>
+                        <div class="timeline-item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0"><%= vacc.vaccineName %></h6>
+                                        <small class="text-muted">Recorded by <%= vacc.recordedBy.name %></small>
+                                    </div>
+                                    <p class="mb-1"><strong>Date:</strong> <%= vacc.injectionDate.toLocaleDateString() %></p>
+                                    <% if (vacc.dosage) { %>
+                                        <p class="mb-1"><strong>Dosage:</strong> <%= vacc.dosage %></p>
+                                    <% } %>
+                                    <% if (vacc.administeredBy) { %>
+                                        <p class="mb-1"><strong>Administered by:</strong> <%= vacc.administeredBy %></p>
+                                    <% } %>
+                                    <% if (vacc.nextDueDate) { %>
+                                        <p class="mb-0">
+                                            <%
+                                            const today = new Date();
+                                            const dueDate = new Date(vacc.nextDueDate);
+                                            const isOverdue = dueDate < today;
+                                            %>
+                                            <span class="badge <%= isOverdue ? 'bg-danger' : 'bg-info' %>">
+                                                Next due: <%= vacc.nextDueDate.toLocaleDateString() %>
+                                                <% if (isOverdue) { %>(OVERDUE)<% } %>
+                                            </span>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Reproduction Tab -->
+        <% if (cow.gender === 'female') { %>
+            <div class="tab-pane fade" id="reproduction" role="tabpanel">
+                <% if (reproductionEvents.length === 0) { %>
+                    <p class="text-muted text-center py-4">No reproduction records yet.</p>
+                <% } else { %>
+                    <div class="timeline">
+                        <% reproductionEvents.forEach(event => { %>
+                            <div class="timeline-item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0">
+                                                <% if (event.birthDate) { %>
+                                                    Birth Event
+                                                <% } else if (event.pregnancyConfirmedDate) { %>
+                                                    Pregnancy Confirmed
+                                                <% } else { %>
+                                                    Mating Event
+                                                <% } %>
+                                            </h6>
+                                            <small class="text-muted">Recorded by <%= event.recordedBy.name %></small>
+                                        </div>
+                                        
+                                        <% if (event.matingDate) { %>
+                                            <p class="mb-1"><strong>Mating Date:</strong> <%= event.matingDate.toLocaleDateString() %></p>
+                                            <p class="mb-1"><strong>Method:</strong> <%= event.method.charAt(0).toUpperCase() + event.method.slice(1) %></p>
+                                        <% } %>
+                                        
+                                        <% if (event.bullId) { %>
+                                            <p class="mb-1"><strong>Bull ID:</strong> <%= event.bullId %></p>
+                                        <% } %>
+                                        
+                                        <% if (event.pregnancyConfirmedDate) { %>
+                                            <p class="mb-1">
+                                                <strong>Pregnancy Confirmed:</strong> <%= event.pregnancyConfirmedDate.toLocaleDateString() %>
+                                            </p>
+                                        <% } %>
+                                        
+                                        <% if (event.expectedDueDate) { %>
+                                            <p class="mb-1">
+                                                <strong>Expected Due:</strong> <%= event.expectedDueDate.toLocaleDateString() %>
+                                            </p>
+                                        <% } %>
+                                        
+                                        <% if (event.birthDate) { %>
+                                            <p class="mb-1"><strong>Birth Date:</strong> <%= event.birthDate.toLocaleDateString() %></p>
+                                            <p class="mb-1"><strong>Number of Calves:</strong> <%= event.numberOfCalves %></p>
+                                            
+                                            <% if (event.calfDetails && event.calfDetails.length > 0) { %>
+                                                <div class="mt-2">
+                                                    <strong>Calves:</strong>
+                                                    <ul class="mb-0 mt-1">
+                                                        <% event.calfDetails.forEach(calf => { %>
+                                                            <li>
+                                                                <% if (calf.cowId) { %>
+                                                                    <a href="/cows/<%= calf.cowId._id %>"><%= calf.earTag %></a>
+                                                                <% } else { %>
+                                                                    <%= calf.earTag %>
+                                                                <% } %>
+                                                                - <%= calf.gender.charAt(0).toUpperCase() + calf.gender.slice(1) %>
+                                                            </li>
+                                                        <% }) %>
+                                                    </ul>
+                                                </div>
+                                            <% } %>
+                                            
+                                            <% if (event.complications) { %>
+                                                <p class="mb-0 mt-2">
+                                                    <span class="badge bg-warning text-dark">Complications noted</span>
+                                                </p>
+                                            <% } %>
+                                        <% } %>
+                                        
+                                        <% if (event.notes) { %>
+                                            <p class="mb-0 mt-2"><strong>Notes:</strong> <%= event.notes %></p>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,129 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-heart-fill"></i> Record Birth Event</h4>
+                </div>
+                <div class="card-body">
+                    <% if (error && error.length > 0) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <% } %>
+
+                    <div class="alert alert-info mb-3">
+                        <strong>Mother:</strong> <%= reproductionEvent.motherCow.earTag %>
+                        <% if (reproductionEvent.motherCow.name) { %> - <%= reproductionEvent.motherCow.name %><% } %>
+                        <% if (reproductionEvent.expectedDueDate) { %>
+                            <br><strong>Expected Due:</strong> <%= reproductionEvent.expectedDueDate.toLocaleDateString() %>
+                        <% } %>
+                    </div>
+
+                    <form action="/reproduction/<%= reproductionEvent._id %>/record-birth" method="POST" id="birthForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="birthDate" class="form-label">Birth Date *</label>
+                                <input type="date" class="form-control" id="birthDate" name="birthDate" 
+                                       value="<%= new Date().toISOString().split('T')[0] %>" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="numberOfCalves" class="form-label">Number of Calves *</label>
+                                <input type="number" class="form-control" id="numberOfCalves" name="numberOfCalves" 
+                                       min="1" max="5" value="1" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="complications" name="complications">
+                                <label class="form-check-label" for="complications">
+                                    Birth complications noted
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"
+                                      placeholder="Any additional information about the birth..."></textarea>
+                        </div>
+
+                        <hr>
+
+                        <h5 class="mb-3">Calf Details</h5>
+                        <p class="text-muted">Each calf will be automatically added as a new cattle record.</p>
+
+                        <div id="calvesContainer">
+                            <div class="calf-entry card mb-3 p-3">
+                                <h6>Calf 1</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="calf_0_earTag" class="form-label">Ear Tag *</label>
+                                        <input type="text" class="form-control" id="calf_0_earTag" name="calf_0_earTag" required>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="calf_0_gender" class="form-label">Gender *</label>
+                                        <select class="form-select" id="calf_0_gender" name="calf_0_gender" required>
+                                            <option value="">Select...</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/cows/<%= reproductionEvent.motherCow._id %>" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Record Birth & Add Calves
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dynamic calf entry generation
+    document.getElementById('numberOfCalves').addEventListener('change', function() {
+        const count = parseInt(this.value);
+        const container = document.getElementById('calvesContainer');
+        container.innerHTML = '';
+
+        for (let i = 0; i < count; i++) {
+            const calfEntry = document.createElement('div');
+            calfEntry.className = 'calf-entry card mb-3 p-3';
+            calfEntry.innerHTML = `
+                <h6>Calf ${i + 1}</h6>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label for="calf_${i}_earTag" class="form-label">Ear Tag *</label>
+                        <input type="text" class="form-control" id="calf_${i}_earTag" name="calf_${i}_earTag" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label for="calf_${i}_gender" class="form-label">Gender *</label>
+                        <select class="form-select" id="calf_${i}_gender" name="calf_${i}_gender" required>
+                            <option value="">Select...</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            container.appendChild(calfEntry);
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

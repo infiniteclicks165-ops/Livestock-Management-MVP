@@ -1,0 +1,82 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-0 text-danger">
+                <i class="bi bi-exclamation-triangle"></i> Overdue Vaccinations
+            </h2>
+            <p class="text-muted">Cattle needing immediate attention</p>
+        </div>
+        <div class="col-auto">
+            <a href="/vaccinations" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Vaccinations
+            </a>
+        </div>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <% if (vaccinations.length === 0) { %>
+            <div class="col-12">
+                <div class="alert alert-success text-center">
+                    <i class="bi bi-check-circle fs-1 d-block mb-2"></i>
+                    <h5>All vaccinations are up to date!</h5>
+                    <p class="mb-0">No overdue vaccinations at this time.</p>
+                </div>
+            </div>
+        <% } else { %>
+            <% vaccinations.forEach(vacc => { %>
+                <%
+                const today = new Date();
+                const dueDate = new Date(vacc.nextDueDate);
+                const daysOverdue = Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24));
+                %>
+                <div class="col-md-6 mb-3">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <a href="/cows/<%= vacc.cow._id %>" class="text-white text-decoration-none">
+                                        <%= vacc.cow.earTag %>
+                                        <% if (vacc.cow.name) { %> - <%= vacc.cow.name %><% } %>
+                                    </a>
+                                </h5>
+                                <span class="badge bg-light text-danger">
+                                    <%= daysOverdue %> <%= daysOverdue === 1 ? 'day' : 'days' %> overdue
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="fw-bold"><%= vacc.vaccineName %></h6>
+                            <p class="mb-2"><strong>Last Injection:</strong> <%= vacc.injectionDate.toLocaleDateString() %></p>
+                            <p class="mb-2"><strong>Was Due:</strong> <%= vacc.nextDueDate.toLocaleDateString() %></p>
+                            <% if (vacc.dosage) { %>
+                                <p class="mb-2"><strong>Dosage:</strong> <%= vacc.dosage %></p>
+                            <% } %>
+                            <% if (vacc.administeredBy) { %>
+                                <p class="mb-2"><strong>Last Administered By:</strong> <%= vacc.administeredBy %></p>
+                            <% } %>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Recorded by <%= vacc.recordedBy.name %></small>
+                                <a href="/vaccinations/add?cowId=<%= vacc.cow._id %>" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-shield-check"></i> Vaccinate Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
