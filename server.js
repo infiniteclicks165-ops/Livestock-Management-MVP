@@ -1,10 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const flash = require("connect-flash");
 const methodOverride = require("method-override");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-require("dotenv").config();
 
 const app = express();
 
@@ -18,10 +18,13 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 
 // Database connection
 mongoose
-  .connect("mongodb://localhost:27017/", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    `mongodb://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.VPS_IP}:27017/VPS_Database?authSource=${process.env.DB_USER}`,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+  )
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
